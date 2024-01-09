@@ -10,7 +10,7 @@ export default function Home() {
   }
   return (
     <main className="">
-      {!chat_on?
+      {chat_on?
         <MessageBox/>:
         <div className='landing bg-[#f4f5f7] min-h-[100vh]'>
           <div className="heading bg-gradient-to-tl to-[#cfad1f] from-[#93a877] rounded-b-[50px]">
