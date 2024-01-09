@@ -25,3 +25,37 @@
     )
     rgb(var(--background-start-rgb));
 } */
+
+.is_typing_container .typing-dot{
+  display: inline-block;
+  transition: transform 2s linear;
+}
+.is_typing_container .typing-dot.dot1{
+  animation: typing-dot1 infinite 1s;
+}
+.is_typing_container .typing-dot.dot2{
+  animation: typing-dot2 infinite 1s;
+}
+.is_typing_container .typing-dot.dot3{
+  animation: typing-dot3 infinite 1s;
+}
+/* .is_typing_container{
+  background-color: red;
+  animation: typing-dot infinite 1s;
+} */
+
+@keyframes typing-dot1 {
+  0% { transform: translateY(0%); }
+  30% { transform: translateY(-20%); }
+  100% { transform: translateY(0%); }
+}
+@keyframes typing-dot2 {
+  0% { transform: translateY(0%); }
+  50% { transform: translateY(-16%); }
+  100% { transform: translateY(0%); }
+}
+@keyframes typing-dot3 {
+  100% { transform: translateY(-0%); }
+  50% { transform: translateY(-10%); }
+  100% { transform: translateY(0%); }
+}
