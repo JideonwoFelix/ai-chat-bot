@@ -39,15 +39,15 @@ const MessageBox: React.FC = () => {
     const openai = new OpenAI(configuration);
 
     // force scrolling to the bottom ----not workin yet
-    useEffect(() => {
-        chatBox?.scrollTo({
-            top: chatBox?.scrollHeight as number,  
-            left: 0, 
-            behavior: "smooth",
-        });
-        // console.log( chatBoxRef?.scrollHeight)
-        // typing_indicator?.scrollIntoView({ behavior: "smooth" })
-    }, [chatMessages, isTyping]);
+    // useEffect(() => {
+    //     chatBox?.scrollTo({
+    //         top: chatBox?.scrollHeight as number,  
+    //         left: 0, 
+    //         behavior: "smooth",
+    //     });
+    //     // console.log( chatBoxRef?.scrollHeight)
+    //     // typing_indicator?.scrollIntoView({ behavior: "smooth" })
+    // }, [chatMessages, isTyping]);
 
     const scroll_to_bottom_of_chat = ()=>{
         // chatBoxRef_.current?.scrollIntoView({
