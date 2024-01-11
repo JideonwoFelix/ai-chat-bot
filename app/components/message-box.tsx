@@ -118,7 +118,7 @@ const MessageBox: React.FC = () => {
         </div>
         <div className="xabsolute row-span-1 bottom-0 w-full bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10 xh-[130px] align-start">
             <input id='chat_input' type="text" className='p-4 w-3/5 rounded-[30px] text-black' placeholder={isTyping? 'Waiting for response, please hold on...': `Write a message...`}  disabled={isTyping ? true : false}/>
-            <div className='font-bold text-2xl' onClick={send_chat}>Send</div>
+            <div className={'font-bold text-2xl cursor-pointer ' + (isTyping? 'cursor-not-allowed':'') }onClick={send_chat}>Send</div>
         </div>
     </div>
   );
