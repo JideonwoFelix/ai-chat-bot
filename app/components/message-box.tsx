@@ -1,9 +1,137 @@
-import React from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import Image from 'next/image';
+import axios from 'axios';
+import OpenAI from "openai";
+
+interface ChatMessage {
+    role: "user"|"assistant"|"system",
+    content: string
+}
 
 const MessageBox: React.FC = () => {
+    
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+        {
+            role: "system",
+            content: "You are a helpful assistant designed to output JSON.",
+        }
+    ]);
+    const [isTyping, setIsTyping] = useState<Boolean>(false);
+    const chatBoxRef_ = useRef(null);
+    const [botReply, setBotReply] = useState<string>('');
+    const messageThread:ChatMessage[] = []
+
+    // openai initialization
+    const configuration = {
+        apiKey: process.env.NEXT_PUBLIC__MOCK_GPT_API_KEY,
+        baseURL: process.env.NEXT_PUBLIC_MOCK_GPT_API_ENDPOINT as string, 
+        dangerouslyAllowBrowser: true
+    };
+    const openai = new OpenAI(configuration);
+
+    useEffect(() => {
+        let chatBoxRef = document.getElementById('chat_box')
+        chatBoxRef?.scrollTo({
+            top: chatBoxRef?.scrollHeight as number,  
+            left: 0, 
+            behavior: "smooth",
+        });
+        // console.log( chatBoxRef?.scrollHeight)
+    }, [chatMessages, isTyping]);
+
+    const send_chat = async () => {
+        // stop another call if one is still pending
+        if(isTyping){
+            return
+        }
+        const newMessage_ = document.getElementById('chat_input') as HTMLInputElement;
+        const newMessage:ChatMessage = {
+            role: "user",
+            content: newMessage_.value
+        }
+    
+        // Add the new message to the chatMessages array
+        setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+    
+        // Clear the input field
+        newMessage_.value = '';
+
+        // append new element to chatbox
+        AddToChatBox(newMessage)
+
+        setIsTyping(true);
+        try {
+            const completion = await openai.chat.completions.create({
+              model: "gpt-3.5-turbo",
+              messages: chatMessages,
+            });
+          
+            console.log(completion.choices[0].message.content);
+            const botReply:ChatMessage = {
+                role: "assistant",
+                content: completion.choices[0].message.content as string
+            }
+            setIsTyping(false);
+            AddToChatBox(botReply)
+            console.log(botReply)
+            // AddToChatBox(completion.choices[0].message.content);
+        } catch (error) {
+            console.error('Error making OpenAI API request:', error);
+            setIsTyping(false);
+        }
+        // const completion = await openai.chat.completions.create({
+        //     messages: chatMessages,
+        //     model: "gpt-3.5-turbo",
+        // })
+        // console.log(completion.choices[0]);
+        // setIsTyping(false);
+
+        // try {
+        //     const response = await axios.post(
+        //         process.env.NEXT_PUBLIC_OPENAI_API_ENDPOINT as string,
+        //         {
+        //             messages: [{"role": "system", "content": "You are a helpful assistant."},
+        //                 {"role": "user", "content": "Who won the world series in 2020?"},
+        //                 {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+        //                 {"role": "user", "content": "Where was it played?"}],
+        //             model: 'gpt-3.5-turbo'
+        //         },
+        //         {
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+        //         },
+        //         }
+        //     );
+    
+        //     const botReply = response.data.choices[0].message.content;
+        //     setBotReply(botReply);
+        //     console.log('response from gpt', botReply)
+        //     setIsTyping(false);
+        //     // AddToChatBox(botReply)
+        // } catch (error) {
+        //     console.error('Error making OpenAI API request:', error);
+        //     setIsTyping(false);
+        // }
+
+    };
+
+    let AddToChatBox = (message:ChatMessage)=>{
+        setChatMessages((prevMessages) => [...prevMessages, message]);
+        const newAppendage = document.createElement('div');
+        newAppendage.className = `text-2xl rounded-[30px] p-3 px-6 text-white font-bold  w-fit ${message.role === 'user'?'rounded-br-none bg-[#b4ba3a] self-end':'rounded-bl-none bg-[#696d1e]'}` 
+        console.log('new message role--->',message.role === 'user')
+        newAppendage.textContent = message.content;
+        document.getElementById('chat_box')?.append(newAppendage);
+    }
+    //   let AddToChatBox = (role:string, content:string)=>{
+    //     const newAppendage = document.createElement('div');
+    //     newAppendage.className = `text-2xl rounded-[30px] rounded-br-none p-3 px-6 text-white font-bold bg-[#b4ba3a] w-fit ${role = 'user'?'self-end':''}` 
+    //     newAppendage.textContent = content;
+    //     document.getElementById('chat_box')?.append(newAppendage);
+    //   }
   return (
-    <div className='h-screen'>
+    <div className='h-screen grid grid-cols-1 grid-rows-10'>
         <div className="heading bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10">
             <div className="image"><Image src={'/chat-bot-img.png'} height={20} width={70} alt='chat-bot-image'/></div>
             <div>
@@ -11,30 +139,30 @@ const MessageBox: React.FC = () => {
                 <p>Hi My name is Peace. How can I help you? </p>
             </div>
         </div>
-        <div className="bg-[url('/nsuk-logo.png')] bg-center bg-cover bg-blend-overlay bg-opacity-60 bg-white h-4/6 overflow-scroll md:pb-20 p-3 flex flex-col gap-4 justify-end">
-            {/* <div>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quae a id ratione reprehenderit eos corporis dolorum illum libero, commodi ducimus quo? Ut nesciunt perferendis alias esse pariatur nisi autem dicta velit dolor nam hic distinctio aperiam officiis enim, tempora, ratione quae voluptas voluptatum reiciendis! Commodi provident ratione nihil nesciunt unde, culpa nam vitae excepturi doloremque, distinctio numquam sint et fugiat voluptate blanditiis. Omnis earum distinctio animi accusantium sit, eum quae quibusdam, quam magnam, itaque obcaecati fugiat! Dolore repellat totam, iste laborum odit dolores esse, nostrum tempora doloremque quas ipsam debitis nam sunt commodi cupiditate molestiae consectetur rem, omnis voluptates deleniti ea asperiores? Tenetur vel repellendus enim porro repudiandae, incidunt quisquam. Soluta tenetur rem deleniti hic molestiae asperiores facilis nam recusandae veniam maxime, corporis quidem culpa odit, neque mollitia, doloribus vel delectus doloremque amet! Mollitia corporis libero a eum temporibus, earum assumenda iusto, ex itaque aut molestiae incidunt excepturi quos sequi provident, adipisci totam corrupti quasi reiciendis quisquam ut accusamus dolorum pariatur? Tenetur repellat porro officia. Consequuntur doloremque, error sequi minima aspernatur dolor vero ad deserunt, quisquam tenetur laudantium nulla at quos sunt quidem repudiandae voluptatum. Vel voluptatum sapiente corporis ipsa sunt, veniam odio nostrum excepturi fuga aspernatur ipsum itaque! Dolor eius eum, labore voluptate nulla nihil aliquid placeat enim tempore soluta maxime inventore illum nostrum? Commodi ut magnam laudantium doloribus enim fugiat alias vero. Dolorem quasi architecto tenetur, aperiam neque, velit ab quod sunt debitis laborum ipsum dignissimos sed? Itaque delectus aspernatur veniam voluptates sunt accusantium pariatur hic, iusto laudantium accusamus ratione quam, nulla quo mollitia, incidunt deleniti. Explicabo ipsum similique quis nisi incidunt laborum vero cum dolore eos et quo quasi ad voluptatibus, sunt reprehenderit odit provident asperiores perspiciatis consequatur, aut alias molestiae cumque rem error? Esse sint iste earum, maiores veritatis incidunt officiis delectus vero voluptatibus deleniti culpa?
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quae a id ratione reprehenderit eos corporis dolorum illum libero, commodi ducimus quo? Ut nesciunt perferendis alias esse pariatur nisi autem dicta velit dolor nam hic distinctio aperiam officiis enim, tempora, ratione quae voluptas voluptatum reiciendis! Commodi provident ratione nihil nesciunt unde, culpa nam vitae excepturi doloremque, distinctio numquam sint et fugiat voluptate blanditiis. Omnis earum distinctio animi accusantium sit, eum quae quibusdam, quam magnam, itaque obcaecati fugiat! Dolore repellat totam, iste laborum odit dolores esse, nostrum tempora doloremque quas ipsam debitis nam sunt commodi cupiditate molestiae consectetur rem, omnis voluptates deleniti ea asperiores? Tenetur vel repellendus enim porro repudiandae, incidunt quisquam. Soluta tenetur rem deleniti hic molestiae asperiores facilis nam recusandae veniam maxime, corporis quidem culpa odit, neque mollitia, doloribus vel delectus doloremque amet! Mollitia corporis libero a eum temporibus, earum assumenda iusto, ex itaque aut molestiae incidunt excepturi quos sequi provident, adipisci totam corrupti quasi reiciendis quisquam ut accusamus dolorum pariatur? Tenetur repellat porro officia. Consequuntur doloremque, error sequi minima aspernatur dolor vero ad deserunt, quisquam tenetur laudantium nulla at quos sunt quidem repudiandae voluptatum. Vel voluptatum sapiente corporis ipsa sunt, veniam odio nostrum excepturi fuga aspernatur ipsum itaque! Dolor eius eum, labore voluptate nulla nihil aliquid placeat enim tempore soluta maxime inventore illum nostrum? Commodi ut magnam laudantium doloribus enim fugiat alias vero. Dolorem quasi architecto tenetur, aperiam neque, velit ab quod sunt debitis laborum ipsum dignissimos sed? Itaque delectus aspernatur veniam voluptates sunt accusantium pariatur hic, iusto laudantium accusamus ratione quam, nulla quo mollitia, incidunt deleniti. Explicabo ipsum similique quis nisi incidunt laborum vero cum dolore eos et quo quasi ad voluptatibus, sunt reprehenderit odit provident asperiores perspiciatis consequatur, aut alias molestiae cumque rem error? Esse sint iste earum, maiores veritatis incidunt officiis delectus vero voluptatibus deleniti culpa?
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quae a id ratione reprehenderit eos corporis dolorum illum libero, commodi ducimus quo? Ut nesciunt perferendis alias esse pariatur nisi autem dicta velit dolor nam hic distinctio aperiam officiis enim, tempora, ratione quae voluptas voluptatum reiciendis! Commodi provident ratione nihil nesciunt unde, culpa nam vitae excepturi doloremque, distinctio numquam sint et fugiat voluptate blanditiis. Omnis earum distinctio animi accusantium sit, eum quae quibusdam, quam magnam, itaque obcaecati fugiat! Dolore repellat totam, iste laborum odit dolores esse, nostrum tempora doloremque quas ipsam debitis nam sunt commodi cupiditate molestiae consectetur rem, omnis voluptates deleniti ea asperiores? Tenetur vel repellendus enim porro repudiandae, incidunt quisquam. Soluta tenetur rem deleniti hic molestiae asperiores facilis nam recusandae veniam maxime, corporis quidem culpa odit, neque mollitia, doloribus vel delectus doloremque amet! Mollitia corporis libero a eum temporibus, earum assumenda iusto, ex itaque aut molestiae incidunt excepturi quos sequi provident, adipisci totam corrupti quasi reiciendis quisquam ut accusamus dolorum pariatur? Tenetur repellat porro officia. Consequuntur doloremque, error sequi minima aspernatur dolor vero ad deserunt, quisquam tenetur laudantium nulla at quos sunt quidem repudiandae voluptatum. Vel voluptatum sapiente corporis ipsa sunt, veniam odio nostrum excepturi fuga aspernatur ipsum itaque! Dolor eius eum, labore voluptate nulla nihil aliquid placeat enim tempore soluta maxime inventore illum nostrum? Commodi ut magnam laudantium doloribus enim fugiat alias vero. Dolorem quasi architecto tenetur, aperiam neque, velit ab quod sunt debitis laborum ipsum dignissimos sed? Itaque delectus aspernatur veniam voluptates sunt accusantium pariatur hic, iusto laudantium accusamus ratione quam, nulla quo mollitia, incidunt deleniti. Explicabo ipsum similique quis nisi incidunt laborum vero cum dolore eos et quo quasi ad voluptatibus, sunt reprehenderit odit provident asperiores perspiciatis consequatur, aut alias molestiae cumque rem error? Esse sint iste earum, maiores veritatis incidunt officiis delectus vero voluptatibus deleniti culpa?
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quae a id ratione reprehenderit eos corporis dolorum illum libero, commodi ducimus quo? Ut nesciunt perferendis alias esse pariatur nisi autem dicta velit dolor nam hic distinctio aperiam officiis enim, tempora, ratione quae voluptas voluptatum reiciendis! Commodi provident ratione nihil nesciunt unde, culpa nam vitae excepturi doloremque, distinctio numquam sint et fugiat voluptate blanditiis. Omnis earum distinctio animi accusantium sit, eum quae quibusdam, quam magnam, itaque obcaecati fugiat! Dolore repellat totam, iste laborum odit dolores esse, nostrum tempora doloremque quas ipsam debitis nam sunt commodi cupiditate molestiae consectetur rem, omnis voluptates deleniti ea asperiores? Tenetur vel repellendus enim porro repudiandae, incidunt quisquam. Soluta tenetur rem deleniti hic molestiae asperiores facilis nam recusandae veniam maxime, corporis quidem culpa odit, neque mollitia, doloribus vel delectus doloremque amet! Mollitia corporis libero a eum temporibus, earum assumenda iusto, ex itaque aut molestiae incidunt excepturi quos sequi provident, adipisci totam corrupti quasi reiciendis quisquam ut accusamus dolorum pariatur? Tenetur repellat porro officia. Consequuntur doloremque, error sequi minima aspernatur dolor vero ad deserunt, quisquam tenetur laudantium nulla at quos sunt quidem repudiandae voluptatum. Vel voluptatum sapiente corporis ipsa sunt, veniam odio nostrum excepturi fuga aspernatur ipsum itaque! Dolor eius eum, labore voluptate nulla nihil aliquid placeat enim tempore soluta maxime inventore illum nostrum? Commodi ut magnam laudantium doloribus enim fugiat alias vero. Dolorem quasi architecto tenetur, aperiam neque, velit ab quod sunt debitis laborum ipsum dignissimos sed? Itaque delectus aspernatur veniam voluptates sunt accusantium pariatur hic, iusto laudantium accusamus ratione quam, nulla quo mollitia, incidunt deleniti. Explicabo ipsum similique quis nisi incidunt laborum vero cum dolore eos et quo quasi ad voluptatibus, sunt reprehenderit odit provident asperiores perspiciatis consequatur, aut alias molestiae cumque rem error? Esse sint iste earum, maiores veritatis incidunt officiis delectus vero voluptatibus deleniti culpa?
-            </div> */}
-            <div className='text-2xl rounded-[30px] rounded-br-none p-3 px-6 text-white font-bold bg-[#b4ba3a] w-fit self-end'>
-                Hello
+        <div className="relative bg-[url('/nsuk-logo.png')] bg-center bg-cover bg-blend-overlay bg-opacity-60 bg-white xh-5/6 row-span-8 overflow-y-scroll md:pb-10 md:px-40  p-3 flex flex-col gap-4 justify-end">
+            <div className="flex flex-col gap-4 h-full pb-20" id='chat_box' ref={chatBoxRef_}>
+                <div className='text-2xl rounded-[30px] rounded-br-none p-3 px-6 text-white font-bold bg-[#b4ba3a] w-fit self-end'>
+                    Hello
+                </div>
+                <div className='text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit'>
+                    Hi there
+                </div>
             </div>
-            <div className='text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit'>
-                Hi there
-            </div>
-            <div className="text-2xl is_typing_container">
-                typing 
-                <span className="typing-dot dot1">.</span>
-                <span className="typing-dot dot2">.</span>
-                <span className="typing-dot dot3">.</span>
-            </div>
+            {
+                isTyping?
+                <div className="text-2xl is_typing_container fixed bottom-20 " id='typing_indicator'>
+                    typing 
+                    <span className="typing-dot dot1">.</span>
+                    <span className="typing-dot dot2">.</span>
+                    <span className="typing-dot dot3">.</span>
+                </div>
+                :''
+            }
             
         </div>
-        <div className="typing absolute bottom-0 w-full bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10 h-[130px] align-start">
-            <input type="text" className='p-4 w-3/5 rounded-[30px]' placeholder='Write a message...' />
-            <div className='font-bold text-2xl'>Send</div>
+        <div className="xabsolute row-span-1 bottom-0 w-full bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10 xh-[130px] align-start">
+            <input id='chat_input' type="text" className='p-4 w-3/5 rounded-[30px] text-black' placeholder={isTyping? 'please Hold on, waiting for response': `Write a message...`}  disabled={isTyping?true:false}/>
+            <div className='font-bold text-2xl' onClick={send_chat}>Send</div>
         </div>
     </div>
   );
