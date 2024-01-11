@@ -18,6 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>AI Chatbot by Chinwe</title>
+        <link rel="shortcut icon" href="/nsuk-logo.png" type="image/x-icon" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
