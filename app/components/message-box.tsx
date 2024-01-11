@@ -1,6 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
 import Image from 'next/image';
-import axios from 'axios';
 import OpenAI from "openai";
 
 interface ChatMessage {
@@ -79,41 +78,6 @@ const MessageBox: React.FC = () => {
             console.error('Error making OpenAI API request:', error);
             setIsTyping(false);
         }
-        // const completion = await openai.chat.completions.create({
-        //     messages: chatMessages,
-        //     model: "gpt-3.5-turbo",
-        // })
-        // console.log(completion.choices[0]);
-        // setIsTyping(false);
-
-        // try {
-        //     const response = await axios.post(
-        //         process.env.NEXT_PUBLIC_OPENAI_API_ENDPOINT as string,
-        //         {
-        //             messages: [{"role": "system", "content": "You are a helpful assistant."},
-        //                 {"role": "user", "content": "Who won the world series in 2020?"},
-        //                 {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-        //                 {"role": "user", "content": "Where was it played?"}],
-        //             model: 'gpt-3.5-turbo'
-        //         },
-        //         {
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-        //         },
-        //         }
-        //     );
-    
-        //     const botReply = response.data.choices[0].message.content;
-        //     setBotReply(botReply);
-        //     console.log('response from gpt', botReply)
-        //     setIsTyping(false);
-        //     // AddToChatBox(botReply)
-        // } catch (error) {
-        //     console.error('Error making OpenAI API request:', error);
-        //     setIsTyping(false);
-        // }
-
     };
 
     let AddToChatBox = (message:ChatMessage)=>{
@@ -124,12 +88,7 @@ const MessageBox: React.FC = () => {
         newAppendage.textContent = message.content;
         document.getElementById('chat_box')?.append(newAppendage);
     }
-    //   let AddToChatBox = (role:string, content:string)=>{
-    //     const newAppendage = document.createElement('div');
-    //     newAppendage.className = `text-2xl rounded-[30px] rounded-br-none p-3 px-6 text-white font-bold bg-[#b4ba3a] w-fit ${role = 'user'?'self-end':''}` 
-    //     newAppendage.textContent = content;
-    //     document.getElementById('chat_box')?.append(newAppendage);
-    //   }
+
   return (
     <div className='h-screen grid grid-cols-1 grid-rows-10'>
         <div className="heading bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10">
