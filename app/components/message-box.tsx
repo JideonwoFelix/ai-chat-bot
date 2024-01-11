@@ -17,7 +17,18 @@ const MessageBox: React.FC = () => {
     ]);
     const [isTyping, setIsTyping] = useState<Boolean>(false);
     const chatBoxRef_ = useRef(null);
+    const messagesEndRef = useRef(null);
     const chatBox:HTMLDivElement = document.getElementById('chat_box') as HTMLDivElement;
+    // create typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit';
+        typingIndicator.innerHTML =`
+            <div className="text-2xl is_typing_container" id='typing_indicator'>
+                typing 
+                <span className="typing-dot dot1">.</span>
+                <span className="typing-dot dot2">.</span>
+                <span className="typing-dot dot3">.</span>
+            </div>`
 
     // openai initialization
     const configuration = {
@@ -29,15 +40,25 @@ const MessageBox: React.FC = () => {
 
     // force scrolling to the bottom ----not workin yet
     useEffect(() => {
-        let chatBoxRef = document.getElementById('chat_box')
-        chatBoxRef?.scrollTo({
-            top: chatBoxRef?.scrollHeight as number,  
+        chatBox?.scrollTo({
+            top: chatBox?.scrollHeight as number,  
             left: 0, 
             behavior: "smooth",
         });
         // console.log( chatBoxRef?.scrollHeight)
+        // typing_indicator?.scrollIntoView({ behavior: "smooth" })
     }, [chatMessages, isTyping]);
 
+    const scroll_to_bottom_of_chat = ()=>{
+        // chatBoxRef_.current?.scrollIntoView({
+        //     top: chatBox?.scrollHeight as number,  
+        //     left: 0, 
+        //     behavior: "smooth",
+        // });
+        let messagesEndRef_ = messagesEndRef.current as unknown;
+        (messagesEndRef_ as Element).scrollIntoView({ behavior: "smooth" })
+        console.log("schoul've scrolled", chatBox)
+    }
     const send_chat = async () => {
         // stop another call if one is still pending
         if(isTyping){
@@ -59,15 +80,7 @@ const MessageBox: React.FC = () => {
         AddToChatBox(newMessage)
 
         setIsTyping(true);
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit';
-        typingIndicator.innerHTML =`
-            <div className="text-2xl is_typing_container" id='typing_indicator'>
-                typing 
-                <span className="typing-dot dot1">.</span>
-                <span className="typing-dot dot2">.</span>
-                <span className="typing-dot dot3">.</span>
-            </div>`
+        
         chatBox?.appendChild(typingIndicator);
 
         try {
@@ -93,6 +106,7 @@ const MessageBox: React.FC = () => {
         }
     };
 
+    // adds message to array of messages to maintain thread and appends message to chatbBox UI
     let AddToChatBox = (message:ChatMessage)=>{
         setChatMessages((prevMessages) => [...prevMessages, message]);
         const newAppendage = document.createElement('div');
@@ -100,6 +114,7 @@ const MessageBox: React.FC = () => {
         console.log('new message role--->',message.role === 'user')
         newAppendage.textContent = message.content;
         document.getElementById('chat_box')?.append(newAppendage);
+        scroll_to_bottom_of_chat()
     }
 
   return (
@@ -114,7 +129,8 @@ const MessageBox: React.FC = () => {
         <div className="relative bg-[url('/nsuk-logo.png')] bg-center bg-cover bg-blend-overlay bg-opacity-60 bg-white xh-5/6 row-span-8 overflow-y-scroll md:pb-10 md:px-40  p-3 flex flex-col gap-4 justify-end">
             <div className="flex flex-col gap-4 h-full pb-20" id='chat_box' ref={chatBoxRef_}>
                 {/* chats will be added here */}
-            </div>            
+            </div>  
+            <div ref={messagesEndRef} />          
         </div>
         <div className="xabsolute row-span-1 bottom-0 w-full bg-gradient-to-tl to-[#cfad1f] from-[#93a877] flex p-7 items-center justify-center text-white gap-10 xh-[130px] align-start">
             <input id='chat_input' type="text" className='p-4 w-3/5 rounded-[30px] text-black' placeholder={isTyping? 'Waiting for response, please hold on...': `Write a message...`}  disabled={isTyping ? true : false}/>
