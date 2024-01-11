@@ -18,17 +18,7 @@ const MessageBox: React.FC = () => {
     const [isTyping, setIsTyping] = useState<Boolean>(false);
     const chatBoxRef_ = useRef(null);
     const messagesEndRef = useRef(null);
-    const chatBox:HTMLDivElement = document.getElementById('chat_box') as HTMLDivElement;
-    // create typing indicator
-    const typingIndicator = document.createElement('div');
-    typingIndicator.className = 'text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit';
-        typingIndicator.innerHTML =`
-            <div className="text-2xl is_typing_container" id='typing_indicator'>
-                typing 
-                <span className="typing-dot dot1">.</span>
-                <span className="typing-dot dot2">.</span>
-                <span className="typing-dot dot3">.</span>
-            </div>`
+    
 
     // openai initialization
     const configuration = {
@@ -55,6 +45,7 @@ const MessageBox: React.FC = () => {
         //     left: 0, 
         //     behavior: "smooth",
         // });
+        const chatBox:HTMLDivElement = document.getElementById('chat_box') as HTMLDivElement;
         let messagesEndRef_ = messagesEndRef.current as unknown;
         (messagesEndRef_ as Element).scrollIntoView({ behavior: "smooth" })
         console.log("schoul've scrolled", chatBox)
@@ -64,6 +55,17 @@ const MessageBox: React.FC = () => {
         if(isTyping){
             return
         }
+        const chatBox:HTMLDivElement = document.getElementById('chat_box') as HTMLDivElement;
+        // create typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'text-2xl rounded-[30px] rounded-bl-none p-3 px-6 text-white font-bold bg-[#696d1e] w-fit';
+        typingIndicator.innerHTML =`
+            <div className="text-2xl is_typing_container" id='typing_indicator'>
+                typing 
+                <span className="typing-dot dot1">.</span>
+                <span className="typing-dot dot2">.</span>
+                <span className="typing-dot dot3">.</span>
+            </div>`
         const newMessage_ = document.getElementById('chat_input') as HTMLInputElement;
         const newMessage:ChatMessage = {
             role: "user",
