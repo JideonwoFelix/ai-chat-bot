@@ -32,8 +32,8 @@ const MessageBox: React.FC = () => {
 
     // openai initialization
     const configuration = {
-        apiKey: process.env.NEXT_PUBLIC__MOCK_GPT_API_KEY,
-        baseURL: process.env.NEXT_PUBLIC_MOCK_GPT_API_ENDPOINT, 
+        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+        baseURL: process.env.NEXT_PUBLIC_OPENAI_API_ENDPOINT, 
         dangerouslyAllowBrowser: true
     };
     const openai = new OpenAI(configuration);
