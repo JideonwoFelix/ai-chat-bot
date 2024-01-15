@@ -16,7 +16,7 @@ export default function Home() {
           <div className="heading bg-gradient-to-tl to-[#cfad1f] from-[#93a877] rounded-b-[50px]">
             <div className='absolute top-10 left-10'><Image src={'/nsuk-logo.png'} height={20} width={70} alt='nsuk-logo'/></div>
             <div className="bg-white rounded-2xl shadow-lg md:w-2/3 mx-5 md:mx-auto translate-y-1/2 cursor-pointer active:bg-[#e0e0e0]" onClick={()=>setChat_on(true)}>
-              <h2 className='border-b p-7 font-bold text-[#535353]'>Chat with NSUK team</h2>
+              <h2 className='border-b p-7 font-bold text-[#535353]'>Chat with NSUK team</h2> 
               <div className='flex p-7 items-center gap-10 pb-[50px]'>
                 <div className="image"><Image src={'/chat-bot-img.png'} height={20} width={70} alt='chat-bot-image'/></div>
                 <div>
