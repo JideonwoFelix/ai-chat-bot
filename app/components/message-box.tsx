@@ -22,8 +22,8 @@ const MessageBox: React.FC = () => {
 
     // openai initialization
     const configuration = {
-        apiKey: process.env.NEXT_PUBLIC__MOCK_GPT_API_KEY,
-        baseURL: process.env.NEXT_PUBLIC_MOCK_GPT_API_ENDPOINT, 
+        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+        baseURL: 'http://localhost:5000/api', 
         dangerouslyAllowBrowser: true
     };
     const openai = new OpenAI(configuration);
@@ -79,6 +79,7 @@ const MessageBox: React.FC = () => {
         newMessage_.value = '';
 
         // append new element to chatbox
+        setChatMessages((prevMessages) => [...prevMessages, newMessage]);
         AddToChatBox(newMessage)
 
         setIsTyping(true);
@@ -110,7 +111,6 @@ const MessageBox: React.FC = () => {
 
     // adds message to array of messages to maintain thread and appends message to chatbBox UI
     let AddToChatBox = (message:ChatMessage)=>{
-        setChatMessages((prevMessages) => [...prevMessages, message]);
         const newAppendage = document.createElement('div');
         newAppendage.className = `text-2xl rounded-[30px] p-3 px-6 text-white font-bold  w-fit ${message.role === 'user'?'rounded-br-none bg-[#b4ba3a] self-end':'rounded-bl-none bg-[#696d1e]'}` 
         console.log('new message role--->',message.role === 'user')
