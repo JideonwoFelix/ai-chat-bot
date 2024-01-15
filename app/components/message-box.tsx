@@ -75,7 +75,7 @@ const MessageBox: React.FC = () => {
         // Add the new message to the chatMessages array
         setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     
-        // Clear the input field
+        // Clear the input field  
         newMessage_.value = '';
 
         // append new element to chatbox
