@@ -50,7 +50,7 @@ const MessageBox: React.FC = () => {
         const chatBox:HTMLDivElement = document.getElementById('chat_box') as HTMLDivElement;
         let messagesEndRef_ = messagesEndRef.current as unknown;
         (messagesEndRef_ as Element).scrollIntoView({ behavior: "smooth" })
-        console.log("schoul've scrolled", chatBox)
+        // console.log("schoul've scrolled", chatBox)
     }
     const send_chat = async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
@@ -88,7 +88,6 @@ const MessageBox: React.FC = () => {
       setIsTyping(true);
       
       chatBox?.appendChild(typingIndicator);
-      console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);///solely for testing purposes
 
       try {
           const completion = await openai.chat.completions.create({
@@ -96,7 +95,7 @@ const MessageBox: React.FC = () => {
             messages: chatMessages,
           });
         
-          console.log(completion.choices[0].message.content);
+        //   console.log(completion.choices[0].message.content);
           const botReply:ChatMessage = {
               role: "assistant",
               content: completion.choices[0].message.content as string
@@ -104,7 +103,7 @@ const MessageBox: React.FC = () => {
           setIsTyping(false);
           chatBox?.removeChild(typingIndicator);
           AddToChatBox(botReply)
-          console.log(botReply)
+        //   console.log(botReply)
           // AddToChatBox(completion.choices[0].message.content);
       } catch (error) {
           console.error('Error making OpenAI API request:', error);
@@ -128,7 +127,7 @@ const MessageBox: React.FC = () => {
     let AddToChatBox = (message:ChatMessage, isError_msg?:boolean)=>{
         const newAppendage = document.createElement('div');
         newAppendage.className = `text-2xl rounded-[30px] p-3 px-6 ${isError_msg?'text-red-700':'text-white'} font-bold  w-fit ${message.role === 'user'?'rounded-br-none bg-[#b4ba3a] self-end':'rounded-bl-none bg-[#696d1e]'}` 
-        console.log('new message role--->',message.role === 'user')
+        // console.log('new message role--->',message.role === 'user')
         newAppendage.textContent = message.content;
         document.getElementById('chat_box')?.append(newAppendage);
         scroll_to_bottom_of_chat()
