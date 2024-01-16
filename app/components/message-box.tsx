@@ -88,6 +88,7 @@ const MessageBox: React.FC = () => {
       setIsTyping(true);
       
       chatBox?.appendChild(typingIndicator);
+      console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);///solely for testing purposes
 
       try {
           const completion = await openai.chat.completions.create({
