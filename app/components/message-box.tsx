@@ -17,7 +17,7 @@ const MessageBox: React.FC = () => {
     ]);
     const [isTyping, setIsTyping] = useState<Boolean>(false);
     const chatBoxRef_ = useRef(null);
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef(null); 
     
 
     // openai initialization
