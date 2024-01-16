@@ -22,7 +22,7 @@ export default function Home() {
                 <div>
                   <h3 className='font-bold text-[#535353]'>Chat Support</h3>
                   <p>Hi My name is Peace. How can I help you? </p>
-                  <p>Click Here To Start CHatting </p>
+                  <p>Click Here To Start Chatting </p>
                 </div>
               </div>
             </div>
